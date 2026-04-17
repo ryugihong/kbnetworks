@@ -20,16 +20,21 @@ const LANG_GUIDE: Record<Lang, string> = {
   en: "영어로 출력",
 };
 
-const SYSTEM_PROMPT = `당신은 세계 최고 수준의 "프롬프트 엔지니어"입니다.
-사용자가 자유롭게 작성한 요청을, 모든 AI(Claude/GPT/Gemini 등)가 최상의 답변을 낼 수 있는 "완성된 프롬프트"로 재작성하는 것이 당신의 임무입니다.
+const SYSTEM_PROMPT = `당신은 세계 최고 수준의 "프롬프트 엔지니어"입니다. 사용자 요청을 분석해 모든 AI가 최상의 답변을 낼 수 있는 "완성된 프롬프트"로 재작성합니다.
 
-반드시 다음 절차를 내부적으로 수행하세요(결과에 과정은 노출하지 않음):
-1. 원본의 근본 의도(Goal)와 최종 산출물(Deliverable)을 파악한다.
-2. 대상 독자/사용 맥락/도메인을 추론한다. 누락된 정보는 합리적 기본값을 가정하되, 필요한 경우 "명확화 질문"을 마지막 섹션에 1~3개만 덧붙인다.
-3. 모호함/중의성을 제거하고, 품질을 끌어올릴 제약·평가 기준을 추가한다.
+출력은 반드시 아래 두 블록을 이 순서로만 작성합니다. 블록 외부에는 어떤 텍스트/코드펜스/머리말도 출력하지 마세요.
 
-출력은 아래 구조의 "완성된 프롬프트" 하나로 작성합니다. 설명/머리말/맺음말, 코드펜스 없이 프롬프트 본문만 출력합니다.
-
+<analysis>
+{
+  "intent": "사용자가 실제로 원하는 것(한 문장)",
+  "goal": "최종 결과 목표(한 문장)",
+  "audience": "대상 독자/사용자",
+  "deliverable": "구체적 산출물(형식 포함)",
+  "domain": "도메인/분야",
+  "assumptions": ["합리적 가정 1", "합리적 가정 2"]
+}
+</analysis>
+<prompt>
 # 역할 (Role)
 - AI가 수행해야 할 전문가 역할을 한 줄로 정의
 
@@ -56,12 +61,15 @@ const SYSTEM_PROMPT = `당신은 세계 최고 수준의 "프롬프트 엔지니
 
 # 명확화 질문 (필요시)
 - 사용자가 답하면 결과가 크게 개선되는 질문 1~3개. 없으면 이 섹션 생략.
+</prompt>
 
 중요 규칙:
-- 프롬프트 본문만 그대로 복사해 다른 AI에게 붙여넣어 사용할 수 있어야 함
-- 메타 설명(예: "다음은 강화된 프롬프트입니다") 금지
-- 원본에 없는 사실을 단정하지 말고, 가정은 "가정:"이라고 명시
-- 코드 블록으로 감싸지 말 것`;
+- <analysis> 내부는 유효한 UTF-8 JSON 하나만. 주석/trailing comma 금지, 모든 문자열 쌍따옴표. 항상 한국어로 작성.
+- <prompt> 내부는 마크다운 본문만. 메타 설명("다음은 강화된 프롬프트입니다" 등) 금지, 코드펜스 금지.
+- 스타일 가이드의 톤/언어 설정은 <prompt> 본문에만 반영합니다.
+- 태그는 정확히 <analysis></analysis>, <prompt></prompt> (대소문자 구분).
+- 두 블록 외부에는 어떤 문자도 출력하지 않습니다.
+- 원본에 없는 사실을 단정하지 말고, 가정은 analysis.assumptions 배열에 명시합니다.`;
 
 export async function POST(req: Request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -110,7 +118,7 @@ ${prompt}
 [원본 요청 끝]`;
 
   const client = new Anthropic({ apiKey });
-  const model = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
+  const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-7";
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({

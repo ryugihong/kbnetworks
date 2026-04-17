@@ -236,3 +236,133 @@ button:disabled {
     transform: rotate(360deg);
   }
 }
+
+.spinner-muted {
+  border-top-color: var(--accent-2);
+}
+
+.stepper {
+  display: flex;
+  gap: 12px;
+  margin: 8px 0 16px;
+  flex-wrap: wrap;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--muted);
+  background: #0d1118;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.step .num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--border);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.step.active {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.step.active .num {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #0b0d12;
+}
+
+.step.done {
+  border-color: var(--success);
+  color: var(--text);
+}
+
+.step.done .num {
+  background: var(--success);
+  color: #0b0d12;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stack .card {
+  min-height: 0;
+}
+
+.analysis-card {
+  min-height: 200px;
+}
+
+.analysis-empty {
+  min-height: 140px;
+}
+
+.analysis-dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.analysis-row {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.analysis-dl dt {
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.analysis-dl dd {
+  margin: 0;
+  line-height: 1.55;
+  word-break: break-word;
+}
+
+.analysis-dl ul {
+  margin: 2px 0 0 18px;
+  padding: 0;
+}
+
+.analysis-dl ul li {
+  margin: 2px 0;
+}
+
+.analysis-raw {
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #0d1118;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+  overflow: auto;
+}
+
+@media (max-width: 900px) {
+  .analysis-row {
+    grid-template-columns: 72px 1fr;
+  }
+}
