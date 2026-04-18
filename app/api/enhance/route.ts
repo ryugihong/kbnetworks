@@ -4,7 +4,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type Tone = "default" | "concise" | "detailed" | "creative" | "academic";
-type Lang = "auto" | "ko" | "en";
+type Lang = "auto" | "ko" | "en" | "both";
 
 const TONE_GUIDE: Record<Tone, string> = {
   default: "균형 잡힌 전문적 톤으로 작성",
@@ -18,6 +18,11 @@ const LANG_GUIDE: Record<Lang, string> = {
   auto: "원본 입력과 동일한 언어로 출력",
   ko: "한국어로 출력",
   en: "영어로 출력",
+  both:
+    "<prompt> 블록 내부에 한국어 버전과 영어 버전을 모두 출력합니다. " +
+    "먼저 '## 한국어 (Korean)' 헤딩으로 시작하는 한국어 전체 프롬프트, " +
+    "그 다음 '---' 구분선, 이어서 '## English' 헤딩으로 시작하는 영어 전체 프롬프트를 작성합니다. " +
+    "두 버전은 의미가 동일해야 하며, 각 버전은 독립적으로 복사해 사용할 수 있는 완결된 프롬프트여야 합니다.",
 };
 
 const SYSTEM_PROMPT = `당신은 세계 최고 수준의 "프롬프트 엔지니어"입니다. 사용자 요청을 분석해 모든 AI가 최상의 답변을 낼 수 있는 "완성된 프롬프트"로 재작성합니다.

@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 
 type Tone = "default" | "concise" | "detailed" | "creative" | "academic";
-type Lang = "auto" | "ko" | "en";
+type Lang = "auto" | "ko" | "en" | "both";
 type Phase = "idle" | "analyzing" | "prompting" | "done";
 
 type Analysis = {
@@ -24,6 +24,7 @@ const TONE_LABELS: Record<Tone, string> = {
 };
 
 const LANG_LABELS: Record<Lang, string> = {
+  both: "한/영",
   auto: "자동",
   ko: "한국어",
   en: "English",
@@ -48,7 +49,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [tone, setTone] = useState<Tone>("default");
-  const [lang, setLang] = useState<Lang>("auto");
+  const [lang, setLang] = useState<Lang>("both");
   const abortRef = useRef<AbortController | null>(null);
 
   const canSubmit = useMemo(
