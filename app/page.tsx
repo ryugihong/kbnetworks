@@ -38,6 +38,41 @@ const ANALYSIS_FIELDS: { key: keyof Analysis; label: string }[] = [
   { key: "domain", label: "도메인" },
 ];
 
+const PRESETS: { icon: string; label: string; text: string }[] = [
+  {
+    icon: "✎",
+    label: "블로그",
+    text: "블로그 글을 써줘. 주제는 ",
+  },
+  {
+    icon: "✉",
+    label: "이메일",
+    text: "이메일 초안을 작성해줘. 목적: ",
+  },
+  {
+    icon: "⟐",
+    label: "요약",
+    text: "다음 내용을 요약해줘:\n\n",
+  },
+  {
+    icon: "◆",
+    label: "코드 리뷰",
+    text: "이 코드를 리뷰해줘. 개선점과 이유를 알려줘:\n\n```\n\n```",
+  },
+  {
+    icon: "⊹",
+    label: "분석",
+    text: "다음 데이터를 분석해줘:\n\n",
+  },
+];
+
+const PHASE_HINTS: Record<Phase, string> = {
+  idle: "준비 완료",
+  analyzing: "원본의 의도·독자·산출물을 파악하고 있습니다",
+  prompting: "완성된 프롬프트를 구조화해 작성하고 있습니다",
+  done: "완료 — 결과를 확인하고 복사해 사용하세요",
+};
+
 export default function Home() {
   const [input, setInput] = useState("");
   const [analysisText, setAnalysisText] = useState("");
@@ -51,6 +86,7 @@ export default function Home() {
   const [tone, setTone] = useState<Tone>("default");
   const [lang, setLang] = useState<Lang>("both");
   const abortRef = useRef<AbortController | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const canSubmit = useMemo(
     () => input.trim().length > 0 && !loading,
@@ -155,12 +191,32 @@ export default function Home() {
     resetResults();
     setError(null);
     setCopied(false);
+    textareaRef.current?.focus();
   }, [resetResults]);
+
+  const insertPreset = useCallback(
+    (text: string) => {
+      setInput((prev) => (prev ? prev + "\n\n" + text : text));
+      requestAnimationFrame(() => {
+        const el = textareaRef.current;
+        if (!el) return;
+        el.focus();
+        const pos = el.value.length;
+        el.setSelectionRange(pos, pos);
+        el.scrollTop = el.scrollHeight;
+      });
+    },
+    [],
+  );
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
       e.preventDefault();
       void enhance();
+    }
+    if (e.key === "Escape" && loading) {
+      e.preventDefault();
+      stop();
     }
   };
 
@@ -178,153 +234,276 @@ export default function Home() {
   const hasAnyResult = !!analysisText || !!promptText;
 
   return (
-    <main className="container">
-      <header className="header">
-        <h1>Prompt Enhancer</h1>
-        <p>
-          자유롭게 작성한 요청의 의도를 분석해 AI가 최적의 답변을 낼 수 있는
-          완벽한 프롬프트로 자동 변환합니다. 의도 분석 → 프롬프트 강화 2단계로
-          결과를 확인할 수 있습니다.
-        </p>
-      </header>
+    <>
+      {loading && <div className="progress-rail" aria-hidden="true" />}
 
-      <section className="options" aria-label="옵션">
-        <OptionGroup
-          label="톤"
-          options={Object.keys(TONE_LABELS) as Tone[]}
-          labels={TONE_LABELS}
-          value={tone}
-          onChange={(v) => setTone(v as Tone)}
-        />
-        <OptionGroup
-          label="언어"
-          options={Object.keys(LANG_LABELS) as Lang[]}
-          labels={LANG_LABELS}
-          value={lang}
-          onChange={(v) => setLang(v as Lang)}
-        />
-      </section>
+      <main className="container">
+        <header className="header">
+          <h1>Prompt Enhancer</h1>
+          <p>
+            자유롭게 작성한 요청의 의도를 분석해 AI가 최적의 답변을 낼 수 있는
+            프롬프트로 다듬습니다. 의도 분석 → 프롬프트 강화 2단계로 과정을
+            투명하게 보여드려요.
+          </p>
+        </header>
 
-      <Stepper s1={stepState(1)} s2={stepState(2)} />
-
-      <section className="grid grid-stack">
-        <div className="card">
-          <div className="card-head">
-            <h2>원본 입력</h2>
-            <span className="status">{input.length.toLocaleString()}자</span>
-          </div>
-          <textarea
-            placeholder={
-              "예) 블로그 글을 써줘. 주제는 AI 트렌드.\n" +
-              "예) 신규 서비스 출시 이메일 작성해줘.\n\n" +
-              "Cmd/Ctrl + Enter 로 실행"
-            }
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={onKeyDown}
-            spellCheck={false}
+        <section className="options" aria-label="스타일 옵션">
+          <ChipGroup
+            label="톤"
+            options={Object.keys(TONE_LABELS) as Tone[]}
+            labels={TONE_LABELS}
+            value={tone}
+            onChange={(v) => setTone(v as Tone)}
           />
-          <div className="toolbar">
-            <button
-              className="btn-primary"
-              onClick={enhance}
-              disabled={!canSubmit}
-            >
-              {loading ? (
-                <>
-                  <span className="spinner" />
-                  강화 중...
-                </>
-              ) : (
-                "프롬프트 강화하기"
-              )}
-            </button>
-            {loading ? (
-              <button className="btn-ghost" onClick={stop}>
-                중단
-              </button>
-            ) : (
-              <button
-                className="btn-ghost"
-                onClick={clearAll}
-                disabled={!input && !hasAnyResult}
-              >
-                초기화
-              </button>
-            )}
-            {error && <span className="status error">{error}</span>}
-          </div>
-        </div>
-
-        <div className="stack">
-          <AnalysisCard
-            analysis={analysis}
-            raw={analysisText}
-            failed={analysisParseFailed}
-            phase={phase}
+          <ChipGroup
+            label="언어"
+            options={Object.keys(LANG_LABELS) as Lang[]}
+            labels={LANG_LABELS}
+            value={lang}
+            onChange={(v) => setLang(v as Lang)}
           />
+        </section>
 
-          <div className="card">
+        <Stepper
+          s1={stepState(1)}
+          s2={stepState(2)}
+          phase={phase}
+          error={!!error}
+        />
+
+        <section className="grid" aria-label="입력과 결과">
+          <article className="glass card" aria-label="원본 입력">
             <div className="card-head">
-              <h2>강화된 프롬프트</h2>
-              <span className="status">
-                {promptText.length.toLocaleString()}자
+              <h2>원본 입력</h2>
+              <span className="status" aria-live="polite">
+                {input.length.toLocaleString()}자
               </span>
             </div>
-            <div className={`output${promptText ? "" : " empty"}`}>
-              {promptText ||
-                (phase === "prompting"
-                  ? "프롬프트 생성 중..."
-                  : "좌측에 원본을 입력하고 ‘프롬프트 강화하기’를 눌러주세요.")}
+
+            <div
+              className="presets"
+              aria-label="자주 쓰는 시작 템플릿"
+              role="group"
+            >
+              {PRESETS.map((p) => (
+                <button
+                  type="button"
+                  key={p.label}
+                  className="preset"
+                  onClick={() => insertPreset(p.text)}
+                  aria-label={`${p.label} 템플릿 삽입`}
+                >
+                  <span className="preset-icon" aria-hidden="true">
+                    {p.icon}
+                  </span>
+                  {p.label}
+                </button>
+              ))}
             </div>
+
+            <textarea
+              ref={textareaRef}
+              placeholder={
+                "예) 블로그 글을 써줘. 주제는 AI 트렌드.\n" +
+                "예) 신규 서비스 출시 이메일 작성해줘.\n\n" +
+                "Cmd/Ctrl + Enter 로 실행 · Esc 로 중단"
+              }
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={onKeyDown}
+              spellCheck={false}
+              aria-label="원본 프롬프트"
+              aria-describedby="kbd-hint"
+            />
+
             <div className="toolbar">
               <button
+                type="button"
                 className="btn-primary"
-                onClick={copy}
-                disabled={!promptText || loading}
+                onClick={enhance}
+                disabled={!canSubmit}
+                aria-busy={loading || undefined}
               >
-                {copied ? "복사됨 ✓" : "복사"}
+                {loading ? (
+                  <>
+                    <span className="spinner" aria-hidden="true" />
+                    강화 중
+                  </>
+                ) : (
+                  "프롬프트 강화하기"
+                )}
               </button>
-              <button
-                className="btn-ghost"
-                onClick={() => {
-                  if (!promptText) return;
-                  setInput(promptText);
-                }}
-                disabled={!promptText || loading}
-              >
-                입력으로 옮기기
-              </button>
+              {loading ? (
+                <button type="button" onClick={stop} aria-label="생성 중단">
+                  중단
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={clearAll}
+                  disabled={!input && !hasAnyResult}
+                >
+                  초기화
+                </button>
+              )}
+              <span className="phase-hint" id="kbd-hint">
+                {PHASE_HINTS[phase]}
+              </span>
+              {error && (
+                <span className="status error" role="alert">
+                  {error}
+                </span>
+              )}
             </div>
-          </div>
-        </div>
-      </section>
+          </article>
 
-      <p className="footer">
-        Powered by Anthropic Claude · 결과는 그대로 복사해 다른 AI 도구에
-        붙여넣어 사용할 수 있습니다.
-      </p>
-    </main>
+          <div className="stack">
+            <AnalysisCard
+              analysis={analysis}
+              raw={analysisText}
+              failed={analysisParseFailed}
+              phase={phase}
+            />
+
+            <article
+              className="glass card"
+              aria-label="강화된 프롬프트"
+              aria-live="polite"
+              aria-atomic="false"
+            >
+              <div className="card-head">
+                <h2>강화된 프롬프트</h2>
+                <span className="status">
+                  {promptText.length.toLocaleString()}자
+                </span>
+              </div>
+              <div
+                className={`output${promptText ? "" : " empty"}`}
+                role="region"
+                aria-label="강화된 프롬프트 결과"
+              >
+                {promptText ||
+                  (phase === "prompting"
+                    ? "프롬프트를 생성하고 있습니다…"
+                    : "좌측에 원본을 입력하고 ‘프롬프트 강화하기’를 눌러주세요.")}
+              </div>
+              <div className="toolbar">
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={copy}
+                  disabled={!promptText || loading}
+                  aria-label={copied ? "복사됨" : "프롬프트 복사"}
+                >
+                  {copied ? "복사됨 ✓" : "복사"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!promptText) return;
+                    setInput(promptText);
+                    requestAnimationFrame(() =>
+                      textareaRef.current?.focus(),
+                    );
+                  }}
+                  disabled={!promptText || loading}
+                >
+                  입력으로 옮기기
+                </button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <p className="footer">
+          Powered by Anthropic Claude · 결과는 그대로 복사해 다른 AI 도구에
+          붙여넣어 사용할 수 있습니다.
+        </p>
+
+        <span className="sr-only" role="status" aria-live="polite">
+          {PHASE_HINTS[phase]}
+        </span>
+      </main>
+
+      <nav className="bottom-bar" aria-label="모바일 주요 동작">
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={enhance}
+          disabled={!canSubmit}
+        >
+          {loading ? (
+            <>
+              <span className="spinner" aria-hidden="true" />
+              강화 중
+            </>
+          ) : (
+            "프롬프트 강화하기"
+          )}
+        </button>
+        {loading ? (
+          <button type="button" onClick={stop}>
+            중단
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={copy}
+            disabled={!promptText || loading}
+          >
+            {copied ? "복사됨 ✓" : "복사"}
+          </button>
+        )}
+      </nav>
+    </>
   );
 }
 
 function Stepper({
   s1,
   s2,
+  phase,
+  error,
 }: {
   s1: "pending" | "active" | "done";
   s2: "pending" | "active" | "done";
+  phase: Phase;
+  error: boolean;
 }) {
+  const connectorDone = s1 === "done";
   return (
-    <nav className="stepper" aria-label="진행 단계">
-      <div className={`step ${s1}`}>
-        <span className="num">{s1 === "done" ? "✓" : "1"}</span>
+    <nav
+      className="stepper"
+      aria-label="강화 진행 단계"
+      aria-current={
+        phase === "analyzing"
+          ? "step"
+          : phase === "prompting"
+            ? "step"
+            : undefined
+      }
+    >
+      <div className={`step ${s1}`} aria-label={`1단계 의도 분석 ${s1}`}>
+        <span className="num" aria-hidden="true">
+          {s1 === "done" ? "✓" : "1"}
+        </span>
         <span>의도 분석</span>
       </div>
-      <div className={`step ${s2}`}>
-        <span className="num">{s2 === "done" ? "✓" : "2"}</span>
+      <span
+        className={`step-connector${connectorDone ? " done" : ""}`}
+        aria-hidden="true"
+      />
+      <div className={`step ${s2}`} aria-label={`2단계 프롬프트 강화 ${s2}`}>
+        <span className="num" aria-hidden="true">
+          {s2 === "done" ? "✓" : "2"}
+        </span>
         <span>프롬프트 강화</span>
       </div>
+      {error && (
+        <span className="status error" role="alert" style={{ marginLeft: 4 }}>
+          오류 발생
+        </span>
+      )}
     </nav>
   );
 }
@@ -340,24 +519,29 @@ function AnalysisCard({
   failed: boolean;
   phase: Phase;
 }) {
-  const showRawFallback = failed || (!analysis && raw.length > 0);
   const empty = !raw && !analysis;
 
   return (
-    <div className="card analysis-card">
+    <article
+      className="glass card analysis-card"
+      aria-label="감지된 의도 분석"
+      aria-live="polite"
+      aria-atomic="false"
+    >
       <div className="card-head">
         <h2>의도 분석</h2>
         {phase === "analyzing" && (
           <span className="status">
-            <span className="spinner spinner-muted" />
+            <span className="spinner" aria-hidden="true" />
             분석 중
           </span>
         )}
       </div>
+
       {empty ? (
-        <div className="output empty analysis-empty">
+        <div className="analysis-empty">
           {phase === "analyzing"
-            ? "원본 요청의 의도를 파악하고 있습니다..."
+            ? "원본 요청의 의도를 파악하고 있습니다…"
             : "요청을 제출하면 감지된 의도가 이곳에 표시됩니다."}
         </div>
       ) : analysis ? (
@@ -385,16 +569,16 @@ function AnalysisCard({
         </dl>
       ) : (
         <pre className="analysis-raw">
-          {showRawFallback && failed
-            ? `${raw}\n\n(JSON 파싱에 실패했습니다. 원문을 표시합니다.)`
+          {failed
+            ? `${raw}\n\n(JSON 파싱에 실패해 원문을 표시합니다.)`
             : raw}
         </pre>
       )}
-    </div>
+    </article>
   );
 }
 
-function OptionGroup<T extends string>({
+function ChipGroup<T extends string>({
   label,
   options,
   labels,
@@ -408,23 +592,19 @@ function OptionGroup<T extends string>({
   onChange: (v: T) => void;
 }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <span style={{ fontSize: 12.5, color: "var(--muted)" }}>{label}</span>
+    <div className="chip-group" role="radiogroup" aria-label={label}>
+      <span className="chip-group-label">{label}</span>
       {options.map((opt) => (
-        <label
+        <button
           key={opt}
+          type="button"
+          role="radio"
+          aria-checked={value === opt}
           className={`chip${value === opt ? " active" : ""}`}
           onClick={() => onChange(opt)}
         >
-          <input
-            type="radio"
-            name={label}
-            checked={value === opt}
-            onChange={() => onChange(opt)}
-            style={{ display: "none" }}
-          />
           {labels[opt]}
-        </label>
+        </button>
       ))}
     </div>
   );
