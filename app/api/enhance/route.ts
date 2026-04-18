@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 
 type Tone = "default" | "concise" | "detailed" | "creative" | "academic";
 type Lang = "auto" | "ko" | "en" | "both";
+type Answer = { question: string; answer: string };
 
 const TONE_GUIDE: Record<Tone, string> = {
   default: "균형 잡힌 전문적 톤으로 작성",
@@ -25,7 +26,14 @@ const LANG_GUIDE: Record<Lang, string> = {
     "두 버전은 의미가 동일해야 하며, 각 버전은 독립적으로 복사해 사용할 수 있는 완결된 프롬프트여야 합니다.",
 };
 
-const SYSTEM_PROMPT = `당신은 세계 최고 수준의 "프롬프트 엔지니어"입니다. 사용자 요청을 분석해 모든 AI가 최상의 답변을 낼 수 있는 "완성된 프롬프트"로 재작성합니다.
+const SYSTEM_PROMPT = `당신은 세계 최고 수준의 "프롬프트 엔지니어"입니다. 사용자의 자유로운 요청과 (있다면) 사용자의 추가 답변을 종합해, 사용자가 별도 수정 없이 그대로 복사해 쓰더라도 AI가 최상의 답변을 낼 수 있는 "완성된 프롬프트"로 재작성합니다.
+
+작성 원칙 (2026년 기준):
+- 주제와 관련해 2026년 현 시점의 모범 사례·용어·트렌드·프레임워크 버전·업계 합의를 반영합니다. 확실하지 않은 최신 정보는 단정하지 말고 assumptions에 명시합니다.
+- 맥락 적합성을 판단해 불필요한 일반론을 배제하고 해당 용도에 특화된 지시로 구체화합니다.
+- 결과 프롬프트는 "길거나 복잡한" 것이 아니라 "구조적으로 완결된" 형태를 지향합니다. 길이는 필요한 최소치여야 합니다.
+- <prompt> 본문은 핵심 요소를 반드시 명확히 포함합니다: 목표(Goal), 조건/맥락(Conditions/Context), 형식(Format), 제약(Constraints), 품질 기준(Quality). 누락된 요소가 없도록 자기검증하세요.
+- 사용자가 제공한 추가 답변은 신뢰하고 우선 반영합니다. 답변이 원본과 상충하면 답변을 우선합니다.
 
 출력은 반드시 아래 두 블록을 이 순서로만 작성합니다. 블록 외부에는 어떤 텍스트/코드펜스/머리말도 출력하지 마세요.
 
@@ -47,7 +55,8 @@ const SYSTEM_PROMPT = `당신은 세계 최고 수준의 "프롬프트 엔지니
 - 사용자가 얻고자 하는 최종 결과를 한두 문장으로 정의
 
 # 맥락 (Context)
-- 배경/독자/톤/도메인 등 알려진 사실과 합리적 가정을 bullet로 정리
+- 배경/독자/사용 환경/톤/도메인 등 알려진 사실과 합리적 가정을 bullet로 정리
+- 해당 주제의 2026년 현 시점 핵심 트렌드·모범 사례를 1~3개 bullet로 요약 반영
 
 # 작업 지시 (Instructions)
 - 단계별로 수행할 작업을 번호 매김으로 구체적으로 작성
@@ -55,17 +64,14 @@ const SYSTEM_PROMPT = `당신은 세계 최고 수준의 "프롬프트 엔지니
 - 필요 시 예시(Few-shot)나 참고 프레임워크를 간결히 제시
 
 # 제약 (Constraints)
-- 길이/형식/금지사항/언어/포함·제외 키워드 등
+- 길이/형식/금지사항/언어/포함·제외 키워드 등 명확히
 
 # 출력 형식 (Output Format)
 - 마크다운/JSON/표 등 명확한 스키마로 지정
 - 섹션 제목·필드명을 그대로 사용하도록 규정
 
 # 품질 체크리스트 (Self-Check)
-- AI가 답변 전 스스로 검증할 3~5개 기준
-
-# 명확화 질문 (필요시)
-- 사용자가 답하면 결과가 크게 개선되는 질문 1~3개. 없으면 이 섹션 생략.
+- AI가 답변 전 스스로 검증할 3~5개 기준 (사실 정확성, 구조 완결성, 최신성, 사용자 맥락 부합 등)
 </prompt>
 
 중요 규칙:
@@ -74,7 +80,18 @@ const SYSTEM_PROMPT = `당신은 세계 최고 수준의 "프롬프트 엔지니
 - 스타일 가이드의 톤/언어 설정은 <prompt> 본문에만 반영합니다.
 - 태그는 정확히 <analysis></analysis>, <prompt></prompt> (대소문자 구분).
 - 두 블록 외부에는 어떤 문자도 출력하지 않습니다.
-- 원본에 없는 사실을 단정하지 말고, 가정은 analysis.assumptions 배열에 명시합니다.`;
+- 원본·답변에 없는 사실을 단정하지 말고, 가정은 analysis.assumptions 배열에 명시합니다.`;
+
+function formatAnswers(answers: Answer[]): string {
+  if (!answers.length) return "";
+  const lines = answers.map(
+    (a) => `- Q: ${a.question}\n  A: ${a.answer}`,
+  );
+  return `
+
+사용자가 제공한 추가 맥락 (이 답변을 신뢰하고 우선 반영):
+${lines.join("\n")}`;
+}
 
 export async function POST(req: Request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -85,7 +102,12 @@ export async function POST(req: Request) {
     );
   }
 
-  let body: { prompt?: string; tone?: Tone; lang?: Lang };
+  let body: {
+    prompt?: string;
+    tone?: Tone;
+    lang?: Lang;
+    answers?: Answer[];
+  };
   try {
     body = await req.json();
   } catch {
@@ -108,9 +130,24 @@ export async function POST(req: Request) {
 
   const tone: Tone = (body.tone ?? "default") as Tone;
   const lang: Lang = (body.lang ?? "auto") as Lang;
+  const rawAnswers = Array.isArray(body.answers) ? body.answers : [];
+  const answers: Answer[] = rawAnswers
+    .filter(
+      (a): a is Answer =>
+        !!a &&
+        typeof a.question === "string" &&
+        typeof a.answer === "string" &&
+        a.answer.trim().length > 0,
+    )
+    .slice(0, 8)
+    .map((a) => ({
+      question: a.question.slice(0, 300),
+      answer: a.answer.slice(0, 600),
+    }));
 
   const toneGuide = TONE_GUIDE[tone] ?? TONE_GUIDE.default;
   const langGuide = LANG_GUIDE[lang] ?? LANG_GUIDE.auto;
+  const answersBlock = formatAnswers(answers);
 
   const userMessage = `다음은 사용자가 자유롭게 작성한 원본 요청입니다. 이를 분석해 위 규격의 "완성된 프롬프트"로 재작성하세요.
 
@@ -120,7 +157,7 @@ export async function POST(req: Request) {
 
 [원본 요청 시작]
 ${prompt}
-[원본 요청 끝]`;
+[원본 요청 끝]${answersBlock}`;
 
   const client = new Anthropic({ apiKey });
   const model = process.env.ANTHROPIC_MODEL || "claude-opus-4-7";
@@ -131,7 +168,7 @@ ${prompt}
       try {
         const response = client.messages.stream({
           model,
-          max_tokens: 2048,
+          max_tokens: 2400,
           system: SYSTEM_PROMPT,
           messages: [{ role: "user", content: userMessage }],
         });
