@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" role="img" aria-label="KOBIS Global mark">
+  <g stroke="#e8772e" stroke-width="3.6" stroke-linecap="round">
+    <circle cx="50" cy="50" r="44"/>
+    <ellipse cx="50" cy="50" rx="17" ry="44"/>
+    <ellipse cx="50" cy="50" rx="44" ry="17"/>
+    <line x1="50" y1="6" x2="50" y2="94"/>
+    <line x1="6" y1="50" x2="94" y2="50"/>
+  </g>
+  <g stroke="#e8772e" stroke-width="5" stroke-linecap="round">
+    <line x1="50" y1="40" x2="50" y2="60"/>
+    <line x1="40" y1="50" x2="60" y2="50"/>
+  </g>
+</svg>
