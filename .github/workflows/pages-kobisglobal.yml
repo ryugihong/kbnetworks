@@ -1,0 +1,44 @@
+# Deploy the KOBIS GLOBAL static website (kobisglobal/) to GitHub Pages.
+# Static HTML — no build step. Serves kobisglobal/index.html at the site root.
+name: Deploy KOBIS GLOBAL site to Pages
+
+on:
+  # Run on pushes to the feature branch
+  push:
+    branches: ["claude/charming-clarke-1p93hb"]
+  # Allow manual runs from the Actions tab
+  workflow_dispatch:
+
+# Permissions required to deploy to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent Pages deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        with:
+          # Attempt to enable Pages automatically if it isn't already
+          enablement: true
+      - name: Upload static site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload only the website folder; its contents become the site root
+          path: ./kobisglobal
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
