@@ -1,0 +1,7 @@
+{
+  "extends": "next/core-web-vitals",
+  "ignorePatterns": ["legacy-static/**", "legacy-prompt-enhancer/**", "out/**"],
+  "rules": {
+    "@next/next/no-page-custom-font": "off"
+  }
+}

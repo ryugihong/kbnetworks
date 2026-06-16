@@ -1,253 +1,119 @@
-"use client";
+import Link from "next/link";
+import { HeroSection } from "@/components/sections/HeroSection";
+import { BusinessAreasSection } from "@/components/sections/BusinessAreasSection";
+import { StatsSection } from "@/components/sections/StatsSection";
+import { ProcessSection } from "@/components/sections/ProcessSection";
+import { CTASection } from "@/components/sections/CTASection";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { GlassCard } from "@/components/ui/GlassCard";
+import { GradientButton } from "@/components/ui/GradientButton";
+import { GradientBadge } from "@/components/ui/GradientBadge";
+import { Reveal } from "@/components/ui/Reveal";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+const BRAND_TEASERS = [
+  { name: "YUN'S SAMYONG FOOD", tag: "K-Food QSR", desc: "라면·김밥·떡볶이 중심 퀵서비스. 몬테레이 1호점 운영 중 · 3채널.", accent: "text-orange" },
+  { name: "YUN'S BUFFET", tag: "Korean BBQ Buffet", desc: "한국식 고기구이 무한리필 + 가라오케. 프리미엄 가족·단체 상권.", accent: "text-cyan" },
+  { name: "BBQ 뷔페 2호점", tag: "확장 · 공사 진행 중", desc: "동일 상권 교차 방문 시너지. 복합 한식 허브 구조.", accent: "text-lime" },
+];
 
-type Tone = "default" | "concise" | "detailed" | "creative" | "academic";
-type Lang = "auto" | "ko" | "en";
-
-const TONE_LABELS: Record<Tone, string> = {
-  default: "기본",
-  concise: "간결",
-  detailed: "상세",
-  creative: "창의",
-  academic: "학술",
-};
-
-const LANG_LABELS: Record<Lang, string> = {
-  auto: "자동",
-  ko: "한국어",
-  en: "English",
-};
-
-export default function Home() {
-  const [input, setInput] = useState("");
-  const [output, setOutput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [tone, setTone] = useState<Tone>("default");
-  const [lang, setLang] = useState<Lang>("auto");
-  const abortRef = useRef<AbortController | null>(null);
-
-  const canSubmit = useMemo(
-    () => input.trim().length > 0 && !loading,
-    [input, loading],
-  );
-
-  const enhance = useCallback(async () => {
-    if (!canSubmit) return;
-    setError(null);
-    setOutput("");
-    setCopied(false);
-    setLoading(true);
-    const controller = new AbortController();
-    abortRef.current = controller;
-    try {
-      const res = await fetch("/api/enhance", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: input, tone, lang }),
-        signal: controller.signal,
-      });
-      if (!res.ok || !res.body) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `요청 실패 (${res.status})`);
-      }
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let acc = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        acc += decoder.decode(value, { stream: true });
-        setOutput(acc);
-      }
-    } catch (e: unknown) {
-      if ((e as { name?: string }).name === "AbortError") return;
-      setError((e as Error).message || "알 수 없는 오류가 발생했습니다.");
-    } finally {
-      setLoading(false);
-      abortRef.current = null;
-    }
-  }, [canSubmit, input, tone, lang]);
-
-  const stop = useCallback(() => {
-    abortRef.current?.abort();
-  }, []);
-
-  const copy = useCallback(async () => {
-    if (!output) return;
-    try {
-      await navigator.clipboard.writeText(output);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setError("클립보드 복사에 실패했습니다.");
-    }
-  }, [output]);
-
-  const clearAll = useCallback(() => {
-    setInput("");
-    setOutput("");
-    setError(null);
-    setCopied(false);
-  }, []);
-
-  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-      e.preventDefault();
-      void enhance();
-    }
-  };
-
+export default function HomePage() {
   return (
-    <main className="container">
-      <header className="header">
-        <h1>Prompt Enhancer</h1>
-        <p>
-          자유롭게 작성한 요청의 의도를 분석해 AI가 최적의 답변을 낼 수 있는
-          완벽한 프롬프트로 자동 변환합니다. 역할, 맥락, 제약, 출력 형식까지
-          구조화된 프롬프트로 다듬어드립니다.
-        </p>
-      </header>
+    <>
+      <HeroSection />
+      <BusinessAreasSection />
 
-      <section className="options" aria-label="옵션">
-        <OptionGroup
-          label="톤"
-          options={Object.keys(TONE_LABELS) as Tone[]}
-          labels={TONE_LABELS}
-          value={tone}
-          onChange={(v) => setTone(v as Tone)}
-        />
-        <OptionGroup
-          label="언어"
-          options={Object.keys(LANG_LABELS) as Lang[]}
-          labels={LANG_LABELS}
-          value={lang}
-          onChange={(v) => setLang(v as Lang)}
-        />
-      </section>
+      <div className="border-y border-hairline bg-white/[0.015]">
+        <StatsSection />
+      </div>
 
-      <section className="grid">
-        <div className="card">
-          <div className="card-head">
-            <h2>원본 입력</h2>
-            <span className="status">{input.length.toLocaleString()}자</span>
-          </div>
-          <textarea
-            placeholder={
-              "예) 블로그 글을 써줘. 주제는 AI 트렌드.\n" +
-              "예) 신규 서비스 출시 이메일 작성해줘.\n\n" +
-              "Cmd/Ctrl + Enter 로 실행"
+      {/* Brands teaser */}
+      <section className="container-x py-20 md:py-24">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <SectionHeader
+            eyebrow="Brands"
+            title={
+              <>
+                두 개의 검증된 브랜드,
+                <br />
+                <span className="text-gradient-warm">하나의 복합 한식 허브.</span>
+              </>
             }
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={onKeyDown}
-            spellCheck={false}
           />
-          <div className="toolbar">
-            <button
-              className="btn-primary"
-              onClick={enhance}
-              disabled={!canSubmit}
-            >
-              {loading ? (
-                <>
-                  <span className="spinner" />
-                  강화 중...
-                </>
-              ) : (
-                "프롬프트 강화하기"
-              )}
-            </button>
-            {loading ? (
-              <button className="btn-ghost" onClick={stop}>
-                중단
-              </button>
-            ) : (
-              <button
-                className="btn-ghost"
-                onClick={clearAll}
-                disabled={!input && !output}
-              >
-                초기화
-              </button>
-            )}
-            {error && <span className="status error">{error}</span>}
-          </div>
+          <GradientButton href="/brands" variant="ghost">
+            전체 브랜드 보기 →
+          </GradientButton>
         </div>
-
-        <div className="card">
-          <div className="card-head">
-            <h2>강화된 프롬프트</h2>
-            <span className="status">{output.length.toLocaleString()}자</span>
-          </div>
-          <div className={`output${output ? "" : " empty"}`}>
-            {output ||
-              "결과가 이곳에 표시됩니다. 좌측에 원본을 입력하고 ‘프롬프트 강화하기’를 눌러주세요."}
-          </div>
-          <div className="toolbar">
-            <button
-              className="btn-primary"
-              onClick={copy}
-              disabled={!output || loading}
-            >
-              {copied ? "복사됨 ✓" : "복사"}
-            </button>
-            <button
-              className="btn-ghost"
-              onClick={() => {
-                if (!output) return;
-                setInput(output);
-              }}
-              disabled={!output || loading}
-            >
-              입력으로 옮기기
-            </button>
-          </div>
+        <div className="mt-12 grid gap-5 md:grid-cols-3">
+          {BRAND_TEASERS.map((b, i) => (
+            <Reveal key={b.name} delay={(i % 3) * 80}>
+              <GlassCard interactive className="h-full">
+                <GradientBadge>{b.tag}</GradientBadge>
+                <h3 className={`mt-5 text-lg font-bold tracking-tight ${b.accent}`}>{b.name}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-cream/65">{b.desc}</p>
+              </GlassCard>
+            </Reveal>
+          ))}
         </div>
       </section>
 
-      <p className="footer">
-        Powered by Anthropic Claude · 결과는 그대로 복사해 다른 AI 도구에
-        붙여넣어 사용할 수 있습니다.
-      </p>
-    </main>
-  );
-}
+      {/* About / platform teaser */}
+      <section className="container-x py-20 md:py-24">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
+          <div>
+            <SectionHeader
+              eyebrow="Why KOBIS GLOBAL"
+              title={
+                <>
+                  검증된 시스템이 먼저,
+                  <br />
+                  <span className="text-gradient">좋은 메뉴는 그다음.</span>
+                </>
+              }
+              sub="멕시코에서 브랜드가 오래 살아남으려면 레시피보다 인프라가 중요합니다. 한국 본사의 시스템과 멕시코 현지 실행력을 결합해, 파트너가 첫날부터 일관된 품질을 구현하도록 지원합니다."
+            />
+            <div className="mt-8 flex flex-wrap gap-4">
+              <GradientButton href="/about" variant="secondary">
+                회사 소개 보기
+              </GradientButton>
+              <GradientButton href="/market" variant="ghost">
+                시장 인텔리전스 →
+              </GradientButton>
+            </div>
+          </div>
+          <Reveal>
+            <GlassCard className="border-gradient-top">
+              <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-hairline bg-white/5">
+                {[
+                  ["원팩 레시피", "초보자도 동일한 맛"],
+                  ["이원화 교육", "본사 + 현장 OJT"],
+                  ["이원화 공급망", "한국 + 현지"],
+                  ["보호 상권", "영업권 보호"],
+                ].map(([k, v]) => (
+                  <div key={k} className="bg-base/40 p-6">
+                    <p className="text-sm font-bold text-cream">{k}</p>
+                    <p className="mt-1 text-[13px] text-cream/55">{v}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-5 text-[13px] leading-relaxed text-cream/55">
+                단일 매장이 아니라, 검증된 운영 인프라를 드립니다 — 상권·공급망·교육·품질관리까지.
+              </p>
+            </GlassCard>
+          </Reveal>
+        </div>
+      </section>
 
-function OptionGroup<T extends string>({
-  label,
-  options,
-  labels,
-  value,
-  onChange,
-}: {
-  label: string;
-  options: T[];
-  labels: Record<T, string>;
-  value: T;
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <span style={{ fontSize: 12.5, color: "var(--muted)" }}>{label}</span>
-      {options.map((opt) => (
-        <label
-          key={opt}
-          className={`chip${value === opt ? " active" : ""}`}
-          onClick={() => onChange(opt)}
-        >
-          <input
-            type="radio"
-            name={label}
-            checked={value === opt}
-            onChange={() => onChange(opt)}
-            style={{ display: "none" }}
-          />
-          {labels[opt]}
-        </label>
-      ))}
-    </div>
+      {/* Process teaser */}
+      <div className="border-y border-hairline bg-white/[0.015]">
+        <ProcessSection limit={3} />
+        <div className="container-x -mt-8 pb-20">
+          <Link href="/process" className="text-sm font-semibold text-cyan transition hover:text-cyan/80">
+            전체 6단계 프로세스 보기 →
+          </Link>
+        </div>
+      </div>
+
+      <CTASection />
+    </>
   );
 }
