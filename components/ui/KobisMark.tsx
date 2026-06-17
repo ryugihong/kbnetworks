@@ -7,14 +7,14 @@ export function KobisMark({ className = "h-7 w-7" }: { className?: string }) {
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      <g stroke="#FF7A00" strokeWidth="3.6" strokeLinecap="round">
+      <g stroke="currentColor" strokeWidth="3.6" strokeLinecap="round">
         <circle cx="50" cy="50" r="44" />
         <ellipse cx="50" cy="50" rx="17" ry="44" />
         <ellipse cx="50" cy="50" rx="44" ry="17" />
         <line x1="50" y1="6" x2="50" y2="94" />
         <line x1="6" y1="50" x2="94" y2="50" />
       </g>
-      <g stroke="#FF7A00" strokeWidth="5" strokeLinecap="round">
+      <g stroke="currentColor" strokeWidth="5" strokeLinecap="round">
         <line x1="50" y1="40" x2="50" y2="60" />
         <line x1="40" y1="50" x2="60" y2="50" />
       </g>

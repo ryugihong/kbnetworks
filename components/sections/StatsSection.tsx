@@ -11,25 +11,20 @@ export function StatsSection({ withHeader = true }: Props) {
   return (
     <section className="container-x py-20 md:py-24">
       {withHeader && (
-        <SectionHeader
-          eyebrow="Market Proof — 2025–2026"
-          title={
-            <>
-              시장과 타이밍이
-              <br />
-              <span className="text-gradient">동시에 열렸습니다.</span>
-            </>
-          }
-        />
+        <div className="mb-12">
+          <SectionHeader eyebrow="Market Proof" title="시장과 타이밍이 동시에 열렸습니다" max={760} />
+        </div>
       )}
-      <div className={`grid gap-5 sm:grid-cols-2 lg:grid-cols-4 ${withHeader ? "mt-12" : ""}`}>
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {STATS.map((s, i) => (
           <Reveal key={s.label} delay={(i % 4) * 70}>
-            <StatCard value={s.value} label={s.label} accent={s.accent} />
+            <StatCard value={s.value} label={s.label} index={String(i + 1).padStart(2, "0")} />
           </Reveal>
         ))}
       </div>
-      <p className="mt-6 text-[12px] leading-relaxed text-cream/40">{STATS_SOURCE}</p>
+      <p className="t-13 text-muted mt-6" style={{ maxWidth: 900 }}>
+        {STATS_SOURCE}
+      </p>
     </section>
   );
 }

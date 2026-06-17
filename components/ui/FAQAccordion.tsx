@@ -4,40 +4,40 @@ import { useState } from "react";
 import type { Faq } from "@/lib/faqs";
 
 export function FAQAccordion({ items }: { items: Faq[] }) {
-  const [open, setOpen] = useState<number | null>(0);
+  const [open, setOpen] = useState<number>(0);
 
   return (
-    <div className="space-y-3">
+    <div className="form-card" style={{ padding: "8px 32px" }}>
       {items.map((item, i) => {
         const isOpen = open === i;
         return (
-          <div
-            key={item.q}
-            className={`overflow-hidden rounded-2xl glass transition-colors ${isOpen ? "border-cyan/30" : ""}`}
-          >
+          <div key={item.q} style={{ borderBottom: i === items.length - 1 ? "none" : "1px solid var(--line)" }}>
             <h3>
               <button
                 type="button"
                 aria-expanded={isOpen}
-                onClick={() => setOpen(isOpen ? null : i)}
-                className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left text-[15px] font-semibold text-cream transition-colors hover:text-cyan"
+                onClick={() => setOpen(isOpen ? -1 : i)}
+                className="flex w-full items-center justify-between gap-6 py-6 text-left"
               >
-                <span>{item.q}</span>
-                <span
-                  aria-hidden="true"
-                  className={`shrink-0 text-xl text-cyan transition-transform duration-300 ${isOpen ? "rotate-45" : ""}`}
-                >
-                  +
+                <span className="t-24" style={{ fontWeight: 500 }}>
+                  {item.q}
+                </span>
+                <span aria-hidden="true" className="shrink-0 text-2xl leading-none">
+                  {isOpen ? "−" : "+"}
                 </span>
               </button>
             </h3>
             <div
-              className="grid transition-all duration-300 ease-out"
-              style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
+              style={{
+                maxHeight: isOpen ? 320 : 0,
+                overflow: "hidden",
+                transition: "max-height .35s ease, opacity .35s ease",
+                opacity: isOpen ? 1 : 0,
+              }}
             >
-              <div className="overflow-hidden">
-                <p className="px-6 pb-6 text-sm leading-relaxed text-cream/65">{item.a}</p>
-              </div>
+              <p className="t-17 text-muted pb-6" style={{ maxWidth: 720 }}>
+                {item.a}
+              </p>
             </div>
           </div>
         );

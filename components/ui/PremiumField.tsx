@@ -6,8 +6,9 @@ import type {
 } from "react";
 
 const fieldClass =
-  "w-full rounded-xl border border-hairline bg-white/[0.04] px-4 py-3 text-sm text-cream placeholder:text-cream/35 outline-none transition focus:border-cyan/60 focus:bg-white/[0.06] focus:ring-2 focus:ring-cyan/20";
-const labelClass = "mb-2 block text-[11px] font-semibold uppercase tracking-[0.12em] text-cream/55";
+  "w-full rounded-2xl border bg-surface px-4 py-3.5 text-[15px] text-dark outline-none transition placeholder:text-dark/35 focus:border-dark";
+const labelClass = "mb-2 block t-13 font-medium text-muted";
+const borderStyle = { borderColor: "var(--line)" } as const;
 
 type Base = { label: string; id: string; required?: boolean };
 
@@ -20,9 +21,9 @@ export function PremiumInput({
   return (
     <div>
       <label htmlFor={id} className={labelClass}>
-        {label} {required && <span className="text-coral">*</span>}
+        {label} {required && <span aria-hidden="true">*</span>}
       </label>
-      <input id={id} name={id} required={required} className={fieldClass} {...props} />
+      <input id={id} name={id} required={required} className={fieldClass} style={borderStyle} {...props} />
     </div>
   );
 }
@@ -36,9 +37,16 @@ export function PremiumTextarea({
   return (
     <div>
       <label htmlFor={id} className={labelClass}>
-        {label} {required && <span className="text-coral">*</span>}
+        {label} {required && <span aria-hidden="true">*</span>}
       </label>
-      <textarea id={id} name={id} required={required} className={`${fieldClass} min-h-[130px] resize-y`} {...props} />
+      <textarea
+        id={id}
+        name={id}
+        required={required}
+        className={`${fieldClass} min-h-[130px] resize-y`}
+        style={borderStyle}
+        {...props}
+      />
     </div>
   );
 }
@@ -53,9 +61,9 @@ export function PremiumSelect({
   return (
     <div>
       <label htmlFor={id} className={labelClass}>
-        {label} {required && <span className="text-coral">*</span>}
+        {label} {required && <span aria-hidden="true">*</span>}
       </label>
-      <select id={id} name={id} required={required} className={`${fieldClass} appearance-none`} {...props}>
+      <select id={id} name={id} required={required} className={`${fieldClass} appearance-none`} style={borderStyle} {...props}>
         {children}
       </select>
     </div>

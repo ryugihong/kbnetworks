@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/accents";
 
-type Variant = "primary" | "lime" | "coral" | "secondary" | "ghost";
+type Variant = "primary" | "ghost";
 
 type Props = {
   href: string;
@@ -11,21 +11,19 @@ type Props = {
   className?: string;
   external?: boolean;
   ariaLabel?: string;
+  /** show the up-right arrow glyph */
+  arrow?: boolean;
 };
 
-const base =
-  "inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold tracking-tight transition-all duration-300 will-change-transform focus-visible:outline-none";
+function ArrowUpRight() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M7 17 17 7M9 7h8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
-const variants: Record<Variant, string> = {
-  primary:
-    "text-base bg-dopamine bg-[length:200%_100%] hover:bg-[position:100%_0] text-[#03121a] shadow-[0_14px_40px_-16px_rgba(0,229,255,0.6)] hover:-translate-y-0.5 hover:shadow-[0_22px_60px_-18px_rgba(0,229,255,0.7)]",
-  lime: "bg-lime text-[#0c1400] hover:-translate-y-0.5 hover:shadow-[0_22px_60px_-18px_rgba(182,255,0,0.5)]",
-  coral: "bg-coral text-white hover:-translate-y-0.5 hover:shadow-[0_22px_60px_-18px_rgba(255,77,109,0.55)]",
-  secondary:
-    "glass text-cream hover:border-cyan/50 hover:shadow-[0_0_0_1px_rgba(0,229,255,0.3),0_18px_50px_-22px_rgba(0,229,255,0.5)] hover:-translate-y-0.5",
-  ghost: "text-cream/75 border border-hairline hover:text-cream hover:border-white/25",
-};
-
+/** Pill button (kept name `GradientButton` for import stability). */
 export function GradientButton({
   href,
   children,
@@ -33,18 +31,25 @@ export function GradientButton({
   className = "",
   external = false,
   ariaLabel,
+  arrow = true,
 }: Props) {
-  const classes = cn(base, variants[variant], className);
+  const classes = cn(variant === "primary" ? "btn-primary" : "btn-ghost", className);
+  const content = (
+    <>
+      {children}
+      {arrow && <ArrowUpRight />}
+    </>
+  );
   if (external) {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer" className={classes} aria-label={ariaLabel}>
-        {children}
+        {content}
       </a>
     );
   }
   return (
     <Link href={href} className={classes} aria-label={ariaLabel}>
-      {children}
+      {content}
     </Link>
   );
 }

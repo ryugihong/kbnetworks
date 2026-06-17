@@ -4,19 +4,19 @@ import { cn } from "@/lib/accents";
 type Props = {
   children: ReactNode;
   className?: string;
-  /** add hover lift + glow */
+  /** add hover lift */
   interactive?: boolean;
   as?: "div" | "article" | "li";
 };
 
+/** White rounded card (kept name `GlassCard` for import stability). */
 export function GlassCard({ children, className = "", interactive = false, as = "div" }: Props) {
   const Tag = as;
   return (
     <Tag
       className={cn(
-        "glass rounded-3xl p-7 shadow-card",
-        interactive &&
-          "transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-glow",
+        "form-card p-8",
+        interactive && "transition-transform duration-300 hover:-translate-y-1",
         className
       )}
     >

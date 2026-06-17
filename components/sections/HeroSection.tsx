@@ -1,65 +1,53 @@
-import { AnimatedBackground } from "@/components/ui/AnimatedBackground";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { GradientBadge } from "@/components/ui/GradientBadge";
-import { HERO } from "@/lib/site-data";
+import { HERO, REGIONS } from "@/lib/site-data";
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden">
-      <AnimatedBackground variant="hero" />
-      <div className="container-x relative z-10 grid items-center gap-14 pb-20 pt-16 md:pb-28 md:pt-24 lg:grid-cols-[1.15fr_0.85fr]">
-        <div>
-          <div className="animate-fade-up">
-            <GradientBadge dot>{HERO.badge}</GradientBadge>
-          </div>
-          <h1
-            className="mt-6 animate-fade-up text-balance text-[2.6rem] font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-[4.25rem]"
-            style={{ animationDelay: "70ms" }}
-          >
-            <span className="block text-cream">{HERO.headline[0]}</span>
-            <span className="block text-gradient">{HERO.headline[1]}</span>
+    <section
+      className="on-dark relative overflow-hidden block-dark"
+      style={{ margin: 12, borderRadius: 28, minHeight: "min(90vh, 880px)", display: "flex" }}
+    >
+      <div
+        aria-hidden="true"
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(14,14,14,0.1) 0%, rgba(14,14,14,0.45) 60%, rgba(14,14,14,0.9) 100%)",
+        }}
+      />
+      <div
+        className="container-x relative flex w-full flex-col"
+        style={{ paddingTop: "clamp(64px,11vh,128px)", paddingBottom: 40 }}
+      >
+        <div className="flex flex-1 flex-col items-center justify-center gap-8 text-center">
+          <GradientBadge>{HERO.badge}</GradientBadge>
+          <h1 className="t-hero">
+            KOBIS
+            <br />
+            GLOBAL<sup style={{ fontSize: "0.28em", verticalAlign: "super" }}>®</sup>
           </h1>
-          <p
-            className="mt-6 max-w-xl animate-fade-up text-[17px] leading-relaxed text-cream/65"
-            style={{ animationDelay: "140ms" }}
-          >
-            {HERO.sub}
+          <p className="t-24 text-muted" style={{ maxWidth: 640 }}>
+            Korea to Mexico, built for execution. 프랜차이즈 운영 · 부동산 개발 · 프로젝트 관리 · 무역 · 현지 파트너십을 하나의 실행 플랫폼으로 연결합니다.
           </p>
-          <div className="mt-9 flex animate-fade-up flex-wrap items-center gap-4" style={{ animationDelay: "210ms" }}>
-            <GradientButton href={HERO.primaryCta.href} variant="primary">
-              {HERO.primaryCta.label}
-            </GradientButton>
-            <GradientButton href={HERO.secondaryCta.href} variant="secondary">
-              {HERO.secondaryCta.label} <span aria-hidden="true">→</span>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <GradientButton href={HERO.primaryCta.href}>{HERO.primaryCta.label}</GradientButton>
+            <GradientButton href={HERO.secondaryCta.href} variant="ghost" arrow={false}>
+              {HERO.secondaryCta.label}
             </GradientButton>
           </div>
         </div>
 
-        {/* Glass business summary panel */}
-        <div className="animate-fade-up" style={{ animationDelay: "260ms" }}>
-          <div className="glass-strong rounded-3xl p-6 shadow-card sm:p-8">
-            <div className="flex items-center justify-between">
-              <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-cream/55">
-                Execution Platform
-              </p>
-              <GradientBadge dot>Live</GradientBadge>
-            </div>
-            <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-hairline bg-white/5">
-              {HERO.panel.map((p) => (
-                <div key={p.k} className="bg-base/40 p-5">
-                  <p className="text-[11px] uppercase tracking-[0.1em] text-cream/45">{p.k}</p>
-                  <p className="mt-1.5 text-sm font-semibold text-cream">{p.v}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {["Franchise", "Real Estate", "Project Mgmt", "Trading", "Partnership", "Market Entry"].map((t) => (
-                <span key={t} className="rounded-full border border-hairline px-3 py-1 text-[11px] text-cream/60">
-                  {t}
-                </span>
-              ))}
-            </div>
-          </div>
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+          <span className="pill t-13" style={{ padding: "8px 16px" }}>
+            <span className="pill-dot" aria-hidden="true" />
+            Monterrey — YUN&apos;S SAMYONG FOOD 운영 중
+          </span>
+          {REGIONS.map((r) => (
+            <span key={r} className="pill t-13" style={{ padding: "8px 16px", textTransform: "none", letterSpacing: 0 }}>
+              {r}
+            </span>
+          ))}
         </div>
       </div>
     </section>

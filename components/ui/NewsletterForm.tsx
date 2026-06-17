@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 
+/** Email capture used on the dark CTA/footer block. */
 export function NewsletterForm() {
   const [done, setDone] = useState(false);
 
@@ -12,28 +13,36 @@ export function NewsletterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4">
-      <div className="flex gap-2">
-        <label htmlFor="newsletter-email" className="sr-only">
+    <div className="flex w-full flex-col items-center gap-3" style={{ maxWidth: 480 }}>
+      <form onSubmit={handleSubmit} className="flex w-full flex-wrap items-center justify-center gap-3">
+        <label htmlFor="cta-email" className="sr-only">
           이메일 주소
         </label>
-        <input
-          id="newsletter-email"
-          type="email"
-          required
-          placeholder="이메일 주소"
-          className="min-w-0 flex-1 rounded-full border border-hairline bg-white/[0.04] px-4 py-2.5 text-[13px] text-cream placeholder:text-cream/35 outline-none transition focus:border-cyan/60"
-        />
-        <button
-          type="submit"
-          className="shrink-0 rounded-full bg-dopamine bg-[length:200%_100%] px-5 py-2.5 text-[13px] font-bold text-[#03121a] transition hover:bg-[position:100%_0]"
+        <div
+          className="flex flex-1 items-center gap-2 rounded-full px-5 py-3.5"
+          style={{ minWidth: 240, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.18)" }}
         >
-          구독
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 7l9 6 9-6M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <input
+            id="cta-email"
+            type="email"
+            required
+            placeholder="you@company.com"
+            className="w-full bg-transparent text-[15px] text-paper outline-none placeholder:text-white/40"
+          />
+        </div>
+        <button type="submit" className="btn-primary">
+          Get started
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 17 17 7M9 7h8v8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </button>
-      </div>
-      <p className="mt-2 text-[12px] text-cream/45" role="status">
-        {done ? "구독 신청이 접수되었습니다. (데모 — 실제 발송되지 않습니다)" : "K-Food 멕시코 시장 인사이트를 받아보세요."}
+      </form>
+      <p className="t-13 text-muted" role="status">
+        {done ? "접수되었습니다. (데모 — 실제 발송되지 않습니다)" : "파트너십 인사이트를 받아보세요."}
       </p>
-    </form>
+    </div>
   );
 }

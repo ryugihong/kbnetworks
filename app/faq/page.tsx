@@ -16,21 +16,15 @@ export default function FaqPage() {
       <PageHero
         crumb="FAQ"
         eyebrow="Frequently Asked"
-        title={
-          <>
-            궁금한 건 솔직하게,
-            <br />
-            <span className="text-gradient">중요한 건 빠짐없이.</span>
-          </>
-        }
+        title="궁금한 건 솔직하게, 중요한 건 빠짐없이."
         lede="파트너십을 시작하기 전 가장 많이 묻는 질문들을 정리했습니다. 원하는 답을 찾지 못하셨다면 언제든 직접 문의해 주세요."
       />
       <FAQSection items={FAQS} />
-      <p className="container-x -mt-10 pb-4 text-[12px] leading-relaxed text-cream/40">
+      <p className="container-x t-13 text-muted pb-4" style={{ maxWidth: 900 }}>
         ※ 상기 금액·조건은 예비 검토용 참고치이며, 최종 조건은 COF·가맹계약서·현장 실사 후 확정됩니다.
       </p>
       <CTASection
-        title={<>답을 찾으셨다면,<br /><span className="text-gradient">다음은 대화</span>입니다.</>}
+        title="답을 찾으셨다면, 다음은 대화입니다."
         primary={{ label: "질문 보내기", href: "/contact" }}
         secondary={{ label: "시장 데이터 보기", href: "/market" }}
       />

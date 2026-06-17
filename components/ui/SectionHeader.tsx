@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { GradientBadge } from "./GradientBadge";
 
 type Props = {
   eyebrow?: string;
@@ -6,16 +7,24 @@ type Props = {
   sub?: ReactNode;
   align?: "left" | "center";
   className?: string;
+  /** constrain title width (px) */
+  max?: number;
 };
 
-export function SectionHeader({ eyebrow, title, sub, align = "left", className = "" }: Props) {
+export function SectionHeader({ eyebrow, title, sub, align = "left", className = "", max = 900 }: Props) {
   return (
-    <div className={`${align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-3xl"} ${className}`}>
-      {eyebrow && <p className="label-eyebrow mb-4">{eyebrow}</p>}
-      <h2 className="text-balance text-3xl font-extrabold tracking-tight sm:text-4xl md:text-[2.7rem] md:leading-[1.08]">
+    <div
+      className={`flex flex-col gap-6 ${align === "center" ? "items-center text-center" : "items-start"} ${className}`}
+    >
+      {eyebrow && <GradientBadge>{eyebrow}</GradientBadge>}
+      <h2 className="t-h3" style={{ maxWidth: max }}>
         {title}
       </h2>
-      {sub && <p className="mt-5 text-base leading-relaxed text-cream/65">{sub}</p>}
+      {sub && (
+        <p className="t-20 text-muted" style={{ maxWidth: align === "center" ? 640 : 560 }}>
+          {sub}
+        </p>
+      )}
     </div>
   );
 }

@@ -1,94 +1,76 @@
 import Link from "next/link";
-import { KobisMark } from "@/components/ui/KobisMark";
 import { NewsletterForm } from "@/components/ui/NewsletterForm";
+import { GradientBadge } from "@/components/ui/GradientBadge";
 import { FOOTER_LINKS, SOCIAL_LINKS } from "@/lib/navigation";
 import { SITE, CONTACT } from "@/lib/site-data";
 
 export function Footer() {
   return (
-    <footer className="relative mt-24 border-t border-hairline border-gradient-top">
-      <div className="container-x grid gap-12 py-16 md:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
-        <div>
-          <div className="flex items-center gap-2.5 font-extrabold tracking-tight">
-            <KobisMark className="h-8 w-8" />
-            <span className="text-lg">
-              KOBIS GLOBAL<sup className="text-[9px] text-orange">®</sup>
-            </span>
-          </div>
-          <p className="mt-2 text-[11px] uppercase tracking-[0.18em] text-cream/45">
-            {SITE.legal} · {SITE.korea}
+    <footer
+      className="on-dark relative overflow-hidden block-dark"
+      style={{ margin: 12, borderRadius: 28 }}
+    >
+      <div
+        aria-hidden="true"
+        className="absolute inset-0"
+        style={{ background: "linear-gradient(180deg,rgba(14,14,14,0.2),rgba(14,14,14,0.85))" }}
+      />
+      <div className="container-x relative" style={{ paddingTop: 104, paddingBottom: 40 }}>
+        <div className="flex flex-col items-center gap-8 text-center">
+          <GradientBadge>Let&apos;s build together</GradientBadge>
+          <h2 className="t-h2" style={{ maxWidth: 820 }}>
+            당신의 다음 장(章)은 여기서 시작됩니다.
+          </h2>
+          <p className="t-20 text-muted" style={{ maxWidth: 560 }}>
+            한국의 브랜드·시스템과 멕시코 현지의 실행력을 잇습니다. 빠른 계약보다 올바른 출발을 먼저 제안합니다.
           </p>
-          <p className="mt-5 text-2xl font-extrabold tracking-tight">
-            <span className="text-gradient">Great begins here.</span>
-          </p>
-          <div className="mt-5 space-y-1.5 text-[13px] text-cream/55">
-            <p>
-              [ Email ]{" "}
-              <a href={`mailto:${CONTACT.email}`} className="transition-colors hover:text-cyan">
-                {CONTACT.email}
-              </a>
-            </p>
-            <p>
-              [ Mexico ]{" "}
-              <a href={CONTACT.phoneHref} className="transition-colors hover:text-cyan">
-                {CONTACT.phone}
-              </a>
-            </p>
-            <p>
-              [ Web ]{" "}
-              <a href={CONTACT.webHref} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-cyan">
-                {CONTACT.web}
-              </a>
-            </p>
+          <NewsletterForm />
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 t-15 text-muted">
+            <a href={`mailto:${CONTACT.email}`} className="hover:text-paper">
+              {CONTACT.email}
+            </a>
+            <span aria-hidden="true">·</span>
+            <a href={CONTACT.phoneHref} className="hover:text-paper">
+              {CONTACT.phone}
+            </a>
+            <span aria-hidden="true">·</span>
+            <a href={CONTACT.webHref} target="_blank" rel="noopener noreferrer" className="hover:text-paper">
+              {CONTACT.web}
+            </a>
           </div>
         </div>
 
-        <div>
-          <p className="mb-5 text-[12px] font-semibold uppercase tracking-[0.12em] text-cream/45">Navigation</p>
-          <ul className="space-y-3">
-            {FOOTER_LINKS.map((l) => (
-              <li key={l.href}>
-                <Link href={l.href} className="text-sm text-cream/65 transition-colors hover:text-cream">
+        <div style={{ marginTop: 88 }}>
+          <h2 className="t-footer text-center" aria-hidden="true">
+            KOBIS GLOBAL<sup style={{ fontSize: "0.3em", verticalAlign: "super" }}>®</sup>
+          </h2>
+          <div
+            className="mt-10 flex flex-wrap items-center justify-between gap-6 pt-10"
+            style={{ borderTop: "1px solid rgba(255,255,255,0.14)" }}
+          >
+            <span className="t-15 text-muted">
+              © {new Date().getFullYear()} {SITE.legal} · {SITE.korea}
+            </span>
+            <div className="flex flex-wrap items-center gap-6 t-menu">
+              {FOOTER_LINKS.map((l) => (
+                <Link key={l.href} href={l.href} className="opacity-70 transition-opacity hover:opacity-100">
                   {l.label}
                 </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <p className="mb-5 text-[12px] font-semibold uppercase tracking-[0.12em] text-cream/45">Social</p>
-          <ul className="space-y-3">
-            {SOCIAL_LINKS.map((s) => (
-              <li key={s.href}>
+              ))}
+            </div>
+            <div className="flex items-center gap-6 t-menu">
+              {SOCIAL_LINKS.map((s) => (
                 <a
+                  key={s.href}
                   href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-cream/65 transition-colors hover:text-cream"
+                  className="opacity-70 transition-opacity hover:opacity-100"
                 >
-                  {s.label}
+                  {s.label.split(" — ")[0]}
                 </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <p className="mb-5 text-[12px] font-semibold uppercase tracking-[0.12em] text-cream/45">Newsletter</p>
-          <NewsletterForm />
-        </div>
-      </div>
-
-      <div className="border-t border-hairline">
-        <div className="container-x flex flex-col items-center justify-between gap-4 py-7 sm:flex-row">
-          <p className="text-[13px] text-cream/45">
-            © {new Date().getFullYear()} {SITE.legal}. All rights reserved. | {SITE.korea}
-          </p>
-          <div className="flex gap-6 text-[13px] text-cream/45">
-            <Link href="/contact" className="transition-colors hover:text-cream/70">개인정보처리방침</Link>
-            <Link href="/contact" className="transition-colors hover:text-cream/70">이용약관</Link>
-            <Link href="/faq" className="transition-colors hover:text-cream/70">FAQ</Link>
+              ))}
+            </div>
           </div>
         </div>
       </div>

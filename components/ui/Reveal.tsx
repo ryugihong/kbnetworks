@@ -9,7 +9,7 @@ type RevealProps = {
   delay?: number;
 };
 
-/** Lightweight scroll-reveal using IntersectionObserver (no animation library). */
+/** Scroll-reveal using IntersectionObserver (no animation library). */
 export function Reveal({ children, className = "", delay = 0 }: RevealProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
@@ -30,7 +30,7 @@ export function Reveal({ children, className = "", delay = 0 }: RevealProps) {
           }
         });
       },
-      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+      { threshold: 0.15, rootMargin: "0px 0px -6% 0px" }
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -39,7 +39,7 @@ export function Reveal({ children, className = "", delay = 0 }: RevealProps) {
   return (
     <div
       ref={ref}
-      className={`reveal ${visible ? "is-visible" : ""} ${className}`}
+      className={`reveal ${visible ? "is-in" : ""} ${className}`}
       style={delay ? { transitionDelay: `${delay}ms` } : undefined}
     >
       {children}

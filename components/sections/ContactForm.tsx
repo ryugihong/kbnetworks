@@ -14,7 +14,7 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="glass rounded-3xl p-7 sm:p-8" noValidate={false}>
+    <form onSubmit={handleSubmit} className="form-card p-8 sm:p-9">
       <div className="grid gap-5">
         <div className="grid gap-5 sm:grid-cols-2">
           <PremiumInput label="성함" id="name" required placeholder="이름을 입력해 주세요" autoComplete="name" />
@@ -52,14 +52,11 @@ export function ContactForm() {
         />
       </div>
 
-      <button
-        type="submit"
-        className="mt-6 w-full rounded-full bg-dopamine bg-[length:200%_100%] px-6 py-4 text-sm font-bold text-[#03121a] transition-all duration-300 hover:bg-[position:100%_0] hover:-translate-y-0.5"
-      >
+      <button type="submit" className="btn-primary mt-6 w-full">
         상담 신청 보내기
       </button>
 
-      <p className="mt-3 text-center text-[12px] leading-relaxed text-cream/45" role="status" aria-live="polite">
+      <p className="t-13 text-muted mt-3 text-center" role="status" aria-live="polite">
         {submitted
           ? "문의가 접수되었습니다. KBNETWORKS 담당자가 영업일 기준 48시간 내 회신드립니다. (데모 — 실제 발송되지 않습니다)"
           : "본 문의는 KBNETWORKS (KOBIS GLOBAL 한국지사) 담당자에게 전달됩니다."}

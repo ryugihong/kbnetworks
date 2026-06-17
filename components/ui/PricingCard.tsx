@@ -1,48 +1,49 @@
-import { ACCENTS, cn } from "@/lib/accents";
+import { cn } from "@/lib/accents";
 import { GradientButton } from "./GradientButton";
 import type { PricingPlan } from "@/lib/pricing";
 
+function Check() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="mt-0.5 shrink-0">
+      <path d="M5 12.5 10 17 19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function PricingCard({ plan }: { plan: PricingPlan }) {
-  const a = ACCENTS[plan.accent];
+  const dark = !!plan.featured;
   return (
     <div
-      className={cn(
-        "relative flex h-full flex-col rounded-3xl p-8 shadow-card transition-all duration-300 hover:-translate-y-1",
-        plan.featured
-          ? "border border-cyan/40 bg-cyan/[0.04] shadow-glow"
-          : "glass hover:border-white/20"
-      )}
+      className={cn("flex h-full flex-col gap-7 p-10", dark ? "on-dark block-dark" : "form-card")}
+      style={{ borderRadius: 28 }}
     >
-      {plan.badge && (
-        <span className="mb-4 inline-flex w-fit rounded-full bg-dopamine bg-[length:200%_100%] px-3 py-1 text-[11px] font-bold text-[#03121a]">
-          {plan.badge}
+      <div className="flex items-center justify-between gap-3">
+        <span className="pill t-13" style={{ padding: "6px 14px" }}>
+          {plan.tier}
         </span>
-      )}
-      <p className={cn("text-[12px] font-semibold uppercase tracking-[0.12em]", a.text)}>{plan.tier}</p>
-      <h3 className="mt-1 text-xl font-bold tracking-tight text-cream">{plan.name}</h3>
-      <p className="mt-3 text-sm leading-relaxed text-cream/60">{plan.description}</p>
-
-      <div className="mt-6">
-        <p className="text-3xl font-black tracking-tight text-cream">{plan.price}</p>
-        <p className="mt-1 text-[13px] text-cream/55">{plan.priceNote}</p>
+        {plan.badge && <span className="t-13 text-muted text-right">{plan.badge}</span>}
       </div>
 
-      <ul className="mt-6 flex-1 space-y-3">
+      <div>
+        <h3 className="t-h5">{plan.name}</h3>
+        <p className="t-15 text-muted mt-3">{plan.description}</p>
+      </div>
+
+      <div>
+        <span className="t-h4">{plan.price}</span>
+        <p className="t-15 text-muted mt-2">{plan.priceNote}</p>
+      </div>
+
+      <ul className="flex flex-1 flex-col gap-3">
         {plan.features.map((f) => (
-          <li key={f} className="flex items-start gap-2.5 text-sm text-cream/70">
-            <span className={cn("mt-0.5 shrink-0 font-bold", a.text)} aria-hidden="true">
-              ✓
-            </span>
-            {f}
+          <li key={f} className="t-15 text-muted flex items-start gap-2.5">
+            <Check />
+            <span>{f}</span>
           </li>
         ))}
       </ul>
 
-      <GradientButton
-        href={plan.cta.href}
-        variant={plan.featured ? "primary" : "secondary"}
-        className="mt-8 w-full"
-      >
+      <GradientButton href={plan.cta.href} variant={dark ? "primary" : "ghost"} className="w-full">
         {plan.cta.label}
       </GradientButton>
     </div>
