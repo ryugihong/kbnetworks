@@ -1,20 +1,67 @@
 import type { Metadata } from "next";
+import { Anta } from "next/font/google";
 import "./globals.css";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import { SITE } from "@/lib/site-data";
+
+const anta = Anta({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-display",
+});
 
 export const metadata: Metadata = {
-  title: "Prompt Enhancer — AI 프롬프트 자동 최적화",
-  description:
-    "자유롭게 작성한 요청을 AI가 최상의 답변을 낼 수 있는 완벽한 프롬프트로 자동 변환합니다.",
+  metadataBase: new URL(SITE.url),
+  title: {
+    default: SITE.title,
+    template: "%s | KOBIS GLOBAL",
+  },
+  description: SITE.description,
+  keywords: [
+    "KOBIS GLOBAL",
+    "한국 멕시코 진출",
+    "K-Food 프랜차이즈",
+    "멕시코 시장 진출",
+    "프로젝트 관리",
+    "무역",
+    "부동산 개발",
+    "Monterrey",
+    "YUN'S SAMYONG FOOD",
+  ],
+  openGraph: {
+    title: SITE.title,
+    description: SITE.description,
+    type: "website",
+    url: SITE.url,
+    siteName: "KOBIS GLOBAL",
+    locale: "ko_KR",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE.title,
+    description: SITE.description,
+  },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko">
-      <body>{children}</body>
+    <html lang="ko" className={anta.variable}>
+      <head>
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
+      </head>
+      <body>
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-dark focus:px-4 focus:py-2 focus:text-paper"
+        >
+          본문 바로가기
+        </a>
+        <Header />
+        <main id="main">{children}</main>
+        <Footer />
+      </body>
     </html>
   );
 }
